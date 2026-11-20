@@ -1,26 +1,34 @@
-// Fixed scenes for screenshots, driven by the `?shot=` query:
-//   ?shot=cover — the cover alone, edge to edge (the app's own drawing of the
-//     PNG it exports, at the chosen post size)
-//   ?shot=editor — the editor with photos loaded
-// Extra params: size=1080x1080|1080x1350|1920x1080, layout=postcard|triptych|
-// split, grade=duotone|sepia|mono|original, title, kicker, place,
-// photo=<scene for slot 1>, photo2=<scene for slot 2>, photo3=<scene for
-// slot 3>, where a scene is one of skyline, boulevard, portrait.
-export function runShot(shot, query, applyScene) {
-  const photos = [];
-  const p1 = query.get('photo') ?? 'skyline';
-  const p2 = query.get('photo2') ?? 'portrait';
-  const p3 = query.get('photo3') ?? 'boulevard';
-  const layout = query.get('layout') ?? 'triptych';
-  if (shot === 'cover' && layout === 'postcard') photos.push([0, p1]);
-  else photos.push([0, p1], [1, p2], [2, p3]);
-  applyScene({
-    size: query.get('size') ?? '1080x1080',
-    layout,
+// Fixed scenes for screenshots. `?shot=cover` shows the finished cover
+// alone; `?shot=editor` shows the editor with photos loaded. Query
+// knobs: scene / scene2 / scene3 pick the sample scenes, layout / grade /
+// size pick the cover setup, kicker / title / place set the caption.
+// main.js paints and raises window.__shotReady once the scene is drawn.
+import { paintScene, SCENES } from './samples.js';
+
+function sceneCanvas(name, fallback) {
+  const pick = SCENES.includes(name) ? name : fallback;
+  return paintScene(pick, 1080, 1080);
+}
+
+export function runShot(shot, query, apply) {
+  if (shot === 'cover') document.body.classList.add('shot-cover');
+  const first = query.get('scene') ?? 'marina';
+  const second = query.get('scene2') ?? 'palmrow';
+  const third = query.get('scene3') ?? 'boardwalk';
+  const slots = [first, second, third].map((name) => ({
+    source: sceneCanvas(name, 'marina'),
+    zoom: 1,
+    ox: 0,
+    oy: 0,
+  }));
+  apply({
+    slots,
+    active: 0,
+    kicker: query.get('kicker') ?? 'Greetings from',
+    title: query.get('title') ?? 'Vice City',
+    place: query.get('place') ?? 'Ocean Drive',
+    layout: query.get('layout') ?? 'triptych',
     grade: query.get('grade') ?? 'duotone',
-    kicker: query.get('kicker') ?? 'GREETINGS FROM',
-    title: query.get('title') ?? 'VICE CITY',
-    place: query.get('place') ?? 'VICE CITY · FLORIDA',
-    photos,
+    sizeKey: query.get('size') ?? 'square',
   });
 }

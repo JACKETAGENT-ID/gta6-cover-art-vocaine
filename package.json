@@ -1,0 +1,1 @@
+{"description":"Vice City Postcard — a GTA-style cover art maker: your photos, a retro travel-poster frame, exported as PNG.","license":"MIT","name":"vice-city-postcard","private":true,"scripts":{"build":"mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts","serve":"node serve.ts"},"type":"module","version":"2.0.0"}

@@ -8,80 +8,74 @@
 </head>
 <body>
 <main class="app">
-  <section class="panel" aria-label="Postcard editor">
-    <header class="masthead">
-      <p class="eyebrow">Greetings from</p>
-      <h1>Vice City Postcard</h1>
-      <p class="lede">Your photos and a caption, turned into a retro travel-poster
-        cover. Pick a layout, drop in up to three photos, then export a PNG.</p>
-    </header>
+  <section class="controls">
+    <h1>Vice City Postcard</h1>
+    <p class="tagline">Your photos, a retro travel-poster frame, and a bold caption — exported as a PNG to share.</p>
 
-    <fieldset class="group" id="photos-group">
-      <legend>1 · Photos</legend>
-      <p class="hint">Click a slot to make it active, then drag the cover to move
-        that photo. Your photos never leave this machine.</p>
-      <div class="slots" id="slots"></div>
-      <div class="samples" aria-label="Sample photos">
-        <span class="samples-label">Try a sample:</span>
-        <button type="button" class="sample-btn" data-sample="skyline">Skyline</button>
-        <button type="button" class="sample-btn" data-sample="boulevard">Boulevard</button>
-        <button type="button" class="sample-btn" data-sample="portrait">Portrait</button>
+    <fieldset class="photos">
+      <legend>Photos — pick a slot, then load a photo or a painted scene</legend>
+      <div class="slot" id="slot-0">
+        <span class="slot-name">Photo 1</span>
+        <label class="file">Upload <input id="file-0" type="file" accept="image/*"></label>
+        <label class="zoom">Zoom <input id="zoom-0" type="range" min="1" max="2.5" step="0.05" value="1"></label>
+        <button id="pick-0" type="button">Edit this one</button>
       </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>2 · Layout</legend>
-      <div class="choices" id="layout-choices">
-        <label><input type="radio" name="layout" value="postcard" checked> Postcard <span>one big photo</span></label>
-        <label><input type="radio" name="layout" value="triptych"> Triptych <span>three panels</span></label>
-        <label><input type="radio" name="layout" value="split"> Split <span>one + two</span></label>
+      <div class="slot" id="slot-1">
+        <span class="slot-name">Photo 2</span>
+        <label class="file">Upload <input id="file-1" type="file" accept="image/*"></label>
+        <label class="zoom">Zoom <input id="zoom-1" type="range" min="1" max="2.5" step="0.05" value="1"></label>
+        <button id="pick-1" type="button">Edit this one</button>
       </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>3 · Caption</legend>
-      <label class="field">Kicker
-        <input id="kicker" type="text" maxlength="30" value="GREETINGS FROM">
-      </label>
-      <label class="field">Title
-        <input id="title" type="text" maxlength="24" value="VICE CITY">
-      </label>
-      <label class="field">Place line
-        <input id="place" type="text" maxlength="40" value="VICE CITY · FLORIDA">
-      </label>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>4 · Colour grade</legend>
-      <div class="choices" id="grade-choices">
-        <label><input type="radio" name="grade" value="duotone" checked> Teal &amp; orange</label>
-        <label><input type="radio" name="grade" value="sepia"> Sepia</label>
-        <label><input type="radio" name="grade" value="mono"> Mono</label>
-        <label><input type="radio" name="grade" value="original"> Original</label>
+      <div class="slot" id="slot-2">
+        <span class="slot-name">Photo 3</span>
+        <label class="file">Upload <input id="file-2" type="file" accept="image/*"></label>
+        <label class="zoom">Zoom <input id="zoom-2" type="range" min="1" max="2.5" step="0.05" value="1"></label>
+        <button id="pick-2" type="button">Edit this one</button>
       </div>
-    </fieldset>
-
-    <fieldset class="group">
-      <legend>5 · Post size</legend>
-      <div class="choices sizes" id="size-choices">
-        <label><input type="radio" name="size" value="1080x1080" checked> 1080 × 1080 <span>square</span></label>
-        <label><input type="radio" name="size" value="1080x1350"> 1080 × 1350 <span>portrait</span></label>
-        <label><input type="radio" name="size" value="1920x1080"> 1920 × 1080 <span>wide</span></label>
+      <div class="samples">
+        <span>Painted scenes:</span>
+        <button id="sample-marina" type="button">Marina dusk</button>
+        <button id="sample-palmrow" type="button">Neon avenue</button>
+        <button id="sample-boardwalk" type="button">Boardwalk</button>
       </div>
+      <p class="hint">Drag the cover to pan the active photo.</p>
     </fieldset>
 
-    <button id="export" type="button" class="export">Export PNG</button>
+    <fieldset>
+      <legend>Caption</legend>
+      <label>Kicker <input id="kicker" type="text" maxlength="30" value="Greetings from"></label>
+      <label>Title <input id="title" type="text" maxlength="24" value="Vice City"></label>
+      <label>Place line <input id="place" type="text" maxlength="30" value="Ocean Drive"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Panels</legend>
+      <label class="radio"><input type="radio" name="layout" value="postcard"> Postcard · one photo</label>
+      <label class="radio"><input type="radio" name="layout" value="triptych" checked> Triptych · three panels</label>
+      <label class="radio"><input type="radio" name="layout" value="split"> Split · one big, two small</label>
+      <label class="radio"><input type="radio" name="layout" value="stack"> Stack · three bands</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Colour grade</legend>
+      <label class="radio"><input type="radio" name="grade" value="duotone" checked> Duotone teal–orange</label>
+      <label class="radio"><input type="radio" name="grade" value="sepia"> Sepia postcard</label>
+      <label class="radio"><input type="radio" name="grade" value="mono"> Mono</label>
+      <label class="radio"><input type="radio" name="grade" value="original"> Original</label>
+      <label class="radio"><input type="radio" name="grade" value="noir"> Noir</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Post size</legend>
+      <label class="radio"><input type="radio" name="size" value="square" checked> Square · 1080 × 1080</label>
+      <label class="radio"><input type="radio" name="size" value="portrait"> Portrait · 1080 × 1350</label>
+      <label class="radio"><input type="radio" name="size" value="wide"> Wide · 1920 × 1080</label>
+    </fieldset>
+
+    <button id="export" type="button" class="export">Export PNG 1080 x 1080</button>
     <p id="status" role="status"></p>
-    <p class="fineprint">All art is drawn by this app from your photos. No Rockstar
-      artwork, logo or font is used. Lettering uses the system fonts on the
-      machine (a heavy serif and a plain sans); the sample scenes are drawn
-      live in the browser, so the app ships no image or font file.</p>
   </section>
-
-  <section class="stage" aria-label="Cover preview">
-    <canvas id="cover" width="1080" height="1080"></canvas>
-    <p class="stage-hint">Drag the cover to move the active photo · scroll the zoom slider in its slot to crop tighter</p>
-  </section>
+  <canvas id="preview" width="1080" height="1080" aria-label="The postcard cover"></canvas>
 </main>
 <script type="module" src="./src/main.js"></script>
 </body>

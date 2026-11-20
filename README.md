@@ -11,9 +11,10 @@ lettering — then exports it as a PNG to share.
 
 ## How it works
 
-1. **Add photos** — upload up to three of your own, or try the three drawn
-   samples (a skyline, a boulevard, a portrait silhouette). Photos are read
-   on your machine and never uploaded anywhere.
+1. **Add photos** — upload up to three of your own, or try the three sample
+   scenes the app draws live in the browser (a skyline, a boulevard, a
+   portrait silhouette). Photos are read on your machine and never uploaded
+   anywhere.
 2. **Pick a layout** — one big photo (Postcard), three panels (Triptych), or
    one plus two (Split).
 3. **Write the caption** — kicker, title and place line, all editable.
@@ -27,11 +28,11 @@ each photo slot crops tighter.
 ## The design
 
 "Vice City Postcard" is a 1930s travel poster, not a neon sunset: cream
-paper, a double-rule frame, a sunburst in muted teal and orange, Playfair
-Display serif for the title and Archivo for the small caps. The stamp shows
-your second photo (or your first) and the postmark reads "Vice City ·
-Florida". Everything is original — no Rockstar logo, wordmark, artwork or
-font is used anywhere.
+paper, a double-rule frame, a sunburst in muted teal and orange, a heavy
+serif title and small caps in a plain sans. The stamp shows your second
+photo (or your first) and the postmark reads "Vice City · Florida".
+Everything is original — no Rockstar logo, wordmark, artwork or font is
+used anywhere.
 
 ## Run it
 
@@ -41,11 +42,9 @@ node serve.ts
 ```
 
 The app is static files under `app/` with no build step and no network
-request at runtime: every script, font and sample image is a file under
-`app/`. Fonts are Playfair Display and Archivo, both under the SIL Open Font
-License (see `app/fonts/OFL.txt`). The three sample photos under
-`app/samples/` are flat illustrations drawn in code with Pillow — no real
-person, no game artwork.
+request at runtime: every script is a file under `app/`, the lettering uses
+the system fonts on the machine, and the three sample scenes are drawn at
+run time by `app/src/samples.js` — no image or font file is shipped.
 
 ## Screenshots
 

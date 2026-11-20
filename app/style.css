@@ -1,20 +1,7 @@
 /* Vice City Postcard — editor chrome in the same retro-postcard voice as
-   the covers it makes: cream paper, deep teal rules, orange accents. */
-@font-face {
-  font-family: "Playfair Display";
-  src: url("./fonts/PlayfairDisplay.ttf") format("truetype-variations");
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Archivo";
-  src: url("./fonts/Archivo.ttf") format("truetype-variations");
-  font-weight: 100 900;
-  font-stretch: 62% 125%;
-  font-style: normal;
-  font-display: swap;
-}
+   the covers it makes: cream paper, deep teal rules, orange accents.
+   Lettering uses system fonts only (a heavy serif for headings, a plain
+   sans for the rest), so the page needs no font file at all. */
 
 :root {
   --paper: #f8ecd4;
@@ -26,6 +13,8 @@
   --orange-deep: #d65420;
   --gold: #eeb24a;
   --line: #c9b183;
+  --serif-display: "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --sans: "Liberation Sans", Arial, "Helvetica Neue", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -33,7 +22,7 @@ html, body { margin: 0; min-height: 100%; }
 body {
   background: var(--paper-dim);
   color: var(--ink);
-  font: 15px/1.45 "Archivo", system-ui, sans-serif;
+  font: 15px/1.45 var(--sans);
 }
 .app {
   display: flex;
@@ -66,7 +55,7 @@ body {
 }
 .masthead h1 {
   margin: 2px 0 6px;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--serif-display);
   font-weight: 900;
   font-size: 34px;
   line-height: 1.02;
@@ -82,7 +71,7 @@ body {
 }
 .group legend {
   padding: 0 8px 0 0;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--serif-display);
   font-weight: 800;
   font-size: 17px;
   color: var(--teal);

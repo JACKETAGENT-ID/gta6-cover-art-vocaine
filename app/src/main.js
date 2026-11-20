@@ -1,15 +1,17 @@
-// Wires the Vice City Postcard editor: photo slots, layout / grade / size
-// choices, caption fields, drag-to-pan cropping, live preview and PNG export.
-// A `?shot=` query sets up a fixed scene for a screenshot instead (shots.js).
+// Wires the Vice City Postcard editor: three photo slots, layout / grade /
+// size choices, caption fields, drag-to-pan cropping, live preview and PNG
+// export. A `?shot=` query sets up a fixed scene for a screenshot instead
+// (shots.js). Sample photos are scenes the app draws itself at run time
+// (samples.js); a visitor's own photos are read on their machine only.
 import { renderCover, panelRects } from './cover.js';
 import { runShot } from './shots.js';
+import { makeSampleScene, SAMPLE_SCENES } from './samples.js';
 
 const SIZES = {
   '1080x1080': [1080, 1080],
   '1080x1350': [1080, 1350],
   '1920x1080': [1920, 1080],
 };
-const SAMPLE_NAMES = ['skyline.jpg', 'boulevard.jpg', 'portrait.jpg'];
 
 const canvas = document.getElementById('cover');
 const status = document.getElementById('status');
@@ -25,12 +27,6 @@ const state = {
   size: '1080x1080',
 };
 
-const fontsReady = Promise.all([
-  document.fonts.load('900 100px "Playfair Display"'),
-  document.fonts.load('800 20px "Archivo"'),
-  document.fonts.load('700 20px "Archivo"'),
-]).catch(() => { /* fall back to system fonts */ });
-
 /** Loads an image from a URL, resolving once it can be drawn. */
 export function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -39,6 +35,11 @@ export function loadImage(url) {
     img.onerror = reject;
     img.src = url;
   });
+}
+
+/** One drawn scene, sized for a slot thumbnail and for the cover alike. */
+function scenePhoto(name) {
+  return { img: makeSampleScene(name, 1080, 1080), zoom: 1, ox: 0, oy: 0 };
 }
 
 function stateForRender() {
@@ -60,6 +61,10 @@ function redrawSoon() {
   requestAnimationFrame(redraw);
 }
 
+function thumbOf(slot) {
+  return document.querySelector(`.slot[data-slot="${slot}"] .slot-thumb`);
+}
+
 /** Builds the three photo slots (file input + zoom slider each). */
 function buildSlots() {
   const host = document.getElementById('slots');
@@ -68,7 +73,7 @@ function buildSlots() {
     slot.className = 'slot' + (i === state.activeSlot ? ' active' : '');
     slot.dataset.slot = String(i);
     slot.innerHTML =
-      `<img class="slot-thumb" alt="" src="samples/${SAMPLE_NAMES[i]}">` +
+      `<img class="slot-thumb" alt="" src="${makeSampleScene(SAMPLE_SCENES[i], 240, 240).toDataURL()}">` +
       `<div class="slot-body">` +
       `<div class="slot-name">Photo ${i + 1}</div>` +
       `<input type="file" accept="image/*" aria-label="Photo ${i + 1} file">` +
@@ -81,8 +86,9 @@ function buildSlots() {
     slot.querySelector('input[type="file"]').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      state.photos[i] = { img: await loadImage(URL.createObjectURL(file)), zoom: 1, ox: 0, oy: 0 };
-      slot.querySelector('.slot-thumb').src = URL.createObjectURL(file);
+      const url = URL.createObjectURL(file);
+      state.photos[i] = { img: await loadImage(url), zoom: 1, ox: 0, oy: 0 };
+      thumbOf(i).src = url;
       setActiveSlot(i);
       redraw();
     });
@@ -152,11 +158,10 @@ function wireChoices() {
     input.addEventListener('input', redrawSoon);
   });
   document.querySelectorAll('.sample-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const img = await loadImage(`samples/${btn.dataset.sample}`);
+    btn.addEventListener('click', () => {
       const slot = state.activeSlot;
-      state.photos[slot] = { img, zoom: 1, ox: 0, oy: 0 };
-      document.querySelector(`.slot[data-slot="${slot}"] .slot-thumb`).src = `samples/${btn.dataset.sample}`;
+      state.photos[slot] = scenePhoto(btn.dataset.sample);
+      thumbOf(slot).src = state.photos[slot].img.toDataURL();
       redraw();
     });
   });
@@ -176,7 +181,7 @@ function wireChoices() {
 }
 
 /** Applies one fixed screenshot scene (used by ?shot= only). */
-async function applyShotScene(scene) {
+function applyShotScene(scene) {
   if (scene.size && SIZES[scene.size]) {
     state.size = scene.size;
     const [w, h] = SIZES[scene.size];
@@ -199,11 +204,10 @@ async function applyShotScene(scene) {
   if (scene.title !== undefined) titleInput.value = scene.title;
   if (scene.place !== undefined) placeInput.value = scene.place;
   for (const [slot, sample] of scene.photos || []) {
-    state.photos[slot] = { img: await loadImage(`samples/${sample}`), zoom: 1, ox: 0, oy: 0 };
-    const thumb = document.querySelector(`.slot[data-slot="${slot}"] .slot-thumb`);
-    if (thumb) thumb.src = `samples/${sample}`;
+    state.photos[slot] = scenePhoto(sample);
+    const thumb = thumbOf(slot);
+    if (thumb) thumb.src = state.photos[slot].img.toDataURL();
   }
-  await fontsReady;
   redraw();
   requestAnimationFrame(() => requestAnimationFrame(() => { window.__shotReady = true; }));
 }
@@ -218,12 +222,9 @@ if (shot) {
   if (shot === 'cover') document.body.classList.add('shot-cover');
   runShot(shot, query, applyShotScene);
 } else {
-  // Start with the samples loaded so the first paint already shows a cover.
-  (async () => {
-    for (let i = 0; i < 3; i++) {
-      state.photos[i] = { img: await loadImage(`samples/${SAMPLE_NAMES[i]}`), zoom: 1, ox: 0, oy: 0 };
-    }
-    await fontsReady;
-    redraw();
-  })();
+  // Start with the drawn samples loaded, so the first paint shows a cover.
+  for (let i = 0; i < 3; i++) {
+    state.photos[i] = scenePhoto(SAMPLE_SCENES[i]);
+  }
+  redraw();
 }

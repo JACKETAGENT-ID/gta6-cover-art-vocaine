@@ -3,7 +3,8 @@
 // app/ directory and the screenshots in screenshots/, copies both into the
 // output directory, and writes dossier.json there with the kit's vendored
 // buildDossier helper. The app itself is plain offline files: index.html
-// plus its ES modules, two OFL fonts and three drawn sample photos.
+// plus its ES modules, system fonts only, and sample scenes the app draws
+// at run time — no image or font file is shipped at all.
 // Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 

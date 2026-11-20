@@ -1,7 +1,9 @@
 // Draws the Vice City Postcard cover: a retro travel-poster card with an
 // art-deco sunburst header, one to three photo panels in a teal-and-orange
-// duotone grade, a perforated postage stamp, a postmark, and bold serif
-// lettering. Everything is drawn on the canvas; no image is fetched.
+// grade, a perforated postage stamp, a postmark, and bold lettering. The
+// lettering uses fonts every desktop already has — a heavy serif for the
+// title, a plain sans for the small caps — so the cover draws identically
+// offline with no font file to ship. Everything is drawn on the canvas.
 
 const PAPER = '#f8ecd4';
 const TEAL = '#0b4a52';
@@ -11,7 +13,13 @@ const ORANGE_DEEP = '#d65420';
 const GOLD = '#eeb24a';
 const CREAM = '#fff6e0';
 
-/** Shrinks `size` until `text` fits `maxWidth` in the given font. */
+// System font stacks: the heavy serif carries the title, the sans the rest.
+// Noto Serif Display (Black) and Liberation Sans are the local renders;
+// Georgia / Arial cover a visitor's own machine.
+const SERIF_DISPLAY = '"Noto Serif Display", Georgia, "Times New Roman", serif';
+const SANS = '"Liberation Sans", Arial, "Helvetica Neue", sans-serif';
+
+/** Steps `size` down until `text` fits `maxWidth` in the given font. */
 function fitFont(ctx, text, weight, family, size, maxWidth) {
   let s = size;
   ctx.font = `${weight} ${s}px ${family}`;
@@ -22,7 +30,7 @@ function fitFont(ctx, text, weight, family, size, maxWidth) {
   return s;
 }
 
-/** Draws one photo into a panel rect, cover-fit, with its zoom and pan. */
+/** Paints one photo into a panel rect, cover-fit, with zoom, pan and grade. */
 function drawPhotoInto(ctx, photo, x, y, w, h, grade) {
   const off = document.createElement('canvas');
   off.width = Math.max(2, Math.round(w));
@@ -59,7 +67,7 @@ function drawPhotoInto(ctx, photo, x, y, w, h, grade) {
       o.globalCompositeOperation = 'source-over';
     }
   } else {
-    // Empty slot: striped placeholder so the card never looks broken.
+    // Empty slot: diagonal stripes and a prompt, so the card never breaks.
     o.save();
     o.strokeStyle = 'rgba(248, 236, 212, 0.35)';
     o.lineWidth = Math.max(6, w * 0.02);
@@ -73,7 +81,7 @@ function drawPhotoInto(ctx, photo, x, y, w, h, grade) {
     o.fillStyle = CREAM;
     o.textAlign = 'center';
     o.textBaseline = 'middle';
-    fitFont(o, 'ADD A PHOTO', 800, '"Archivo", sans-serif', h * 0.09, w * 0.8);
+    fitFont(o, 'ADD A PHOTO', 800, SANS, h * 0.09, w * 0.8);
     o.fillText('ADD A PHOTO', w / 2, h / 2);
   }
   ctx.drawImage(off, x, y, w, h);
@@ -137,9 +145,9 @@ function drawStamp(ctx, photo, x, y, s, grade) {
   ctx.fillStyle = TEAL;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  fitFont(ctx, 'VICE CITY', 800, '"Archivo", sans-serif', s * 0.11, s * 0.86);
+  fitFont(ctx, 'VICE CITY', 800, SANS, s * 0.11, s * 0.86);
   ctx.fillText('VICE CITY', s / 2, s * 0.8);
-  fitFont(ctx, '25¢  ·  U.S. POSTAGE', 700, '"Archivo", sans-serif', s * 0.085, s * 0.86);
+  fitFont(ctx, '25¢  ·  U.S. POSTAGE', 700, SANS, s * 0.085, s * 0.86);
   ctx.fillStyle = ORANGE_DEEP;
   ctx.fillText('25¢  ·  U.S. POSTAGE', s / 2, s * 0.91);
   ctx.restore();
@@ -162,7 +170,7 @@ function drawPostmark(ctx, cx, cy, r) {
   ctx.stroke();
   const word = 'VICE CITY • FLORIDA • ';
   const step = (Math.PI * 2) / word.length;
-  ctx.font = `700 ${r * 0.2}px "Archivo", sans-serif`;
+  ctx.font = `700 ${r * 0.2}px ${SANS}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (let i = 0; i < word.length; i++) {
@@ -284,11 +292,12 @@ export function renderCover(canvas, state) {
   const panelsY = panels[0].y;
   panels.forEach((p, i) => drawPhotoInto(ctx, photos[i], p.x, p.y, p.w, p.h, grade));
 
-  // Stamp + postmark overlapping the top-right panel corner.
+  // Stamp + postmark overlapping the top-right panel corner. The postmark
+  // sits a touch further left so its ring text stays clear of the stamp.
   const stampS = Math.min(W, H) * 0.17;
   const stampPhoto = photos[1] && photos[1].img ? photos[1] : photos[0];
   drawStamp(ctx, stampPhoto, ix + iw - stampS - W * 0.012, panelsY - stampS * 0.28, stampS, grade);
-  drawPostmark(ctx, ix + iw - stampS * 1.28, panelsY + stampS * 0.06, stampS * 0.42);
+  drawPostmark(ctx, ix + iw - stampS * 1.4, panelsY + stampS * 0.06, stampS * 0.4);
 
   // Caption band.
   const capY = iy + ih - captionH;
@@ -297,20 +306,20 @@ export function renderCover(canvas, state) {
   const kick = (kicker || '').trim().toUpperCase();
   if (kick) {
     ctx.fillStyle = ORANGE_DEEP;
-    ctx.font = `800 ${Math.round(H * 0.02)}px "Archivo", sans-serif`;
+    ctx.font = `800 ${Math.round(H * 0.02)}px ${SANS}`;
     try { ctx.letterSpacing = `${Math.round(H * 0.004)}px`; } catch { /* older canvas */ }
     ctx.fillText(kick, W / 2, capY + captionH * 0.22);
     try { ctx.letterSpacing = '0px'; } catch { /* older canvas */ }
   }
   const name = (title || 'VICE CITY').trim().toUpperCase() || 'VICE CITY';
-  const titleSize = fitFont(ctx, name, 900, '"Playfair Display", Georgia, serif', H * 0.082, iw * 0.9);
+  const titleSize = fitFont(ctx, name, 900, SERIF_DISPLAY, H * 0.082, iw * 0.9);
   ctx.fillStyle = TEAL;
   ctx.fillText(name, W / 2, capY + captionH * 0.22 + titleSize * 1.02);
   drawOrnament(ctx, W / 2, capY + captionH * 0.78, iw * 0.16, GOLD);
   const placeLine = (place || '').trim().toUpperCase();
   if (placeLine) {
     ctx.fillStyle = TEAL_BRIGHT;
-    ctx.font = `700 ${Math.round(H * 0.016)}px "Archivo", sans-serif`;
+    ctx.font = `700 ${Math.round(H * 0.016)}px ${SANS}`;
     try { ctx.letterSpacing = `${Math.round(H * 0.003)}px`; } catch { /* older canvas */ }
     ctx.fillText(placeLine, W / 2, capY + captionH * 0.95);
     try { ctx.letterSpacing = '0px'; } catch { /* older canvas */ }
